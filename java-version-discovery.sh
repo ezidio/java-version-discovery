@@ -1,23 +1,35 @@
 #!/bin/bash
 
+# Find jars and wars
 for jarFile in `find . -iname '*.war' -o -iname '*.jar'` ; do 
 
 	echo "$jarFile"
+	
+	# read file content
 	for zipFile in `unzip -l $jarFile`; do
+	
+		# Trim spaces
 		zipFileName="${zipFile%"${zipFile##*[![:space:]]}"}"
+		
 		if [[ "$zipFileName" =~ .*class$ ]];
 		then
 			content=`unzip -c $jarFile $zipFileName`
+			
+			# Calc offset to skip the file and jar name
 			jarFileSize=${#jarFile}
 			zipFileNameSize=${#zipFileName}
-			offset=$(($jarFileSize + $zipFileNameSize + 13 + 9 + 6))
+			offset=$(($jarFileSize + $zipFileNameSize + 28))
+			
+			# Extract hex file content 
 			hexContent=`echo ${content:$offset} | xxd -p`
 			
+			# Find file header and extract version
 			type="none"
 			if [[ $hexContent =~ (cafebabe[0]?[2-3][0-9a-f]) ]]; then
 				type=${BASH_REMATCH[1]:(-2)}
 			fi
 			
+			# Echo the version
 			case $type in
 				"34")
 					echo "Java SE 8"
@@ -44,7 +56,7 @@ for jarFile in `find . -iname '*.war' -o -iname '*.jar'` ; do
 					echo "JDK 1.1"
 					;;
 				*)
-					echo "!!! Não identificado... "
+					echo "!!! Java type unindentified... "
 					echo hexContent
 			esac
 			
@@ -52,6 +64,3 @@ for jarFile in `find . -iname '*.war' -o -iname '*.jar'` ; do
 		fi
 	done
 done
-
-
-
