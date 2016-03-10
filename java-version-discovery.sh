@@ -56,7 +56,8 @@ for jarFile in `find . -iname '*.war' -o -iname '*.jar'` ; do
 					echo "JDK 1.1"
 					;;
 				*)
-					echo "!!! Java type unindentified... "
+					echo "!!! Unindentified java version !!! "
+					echo "File hex content:"
 					echo hexContent
 			esac
 			
